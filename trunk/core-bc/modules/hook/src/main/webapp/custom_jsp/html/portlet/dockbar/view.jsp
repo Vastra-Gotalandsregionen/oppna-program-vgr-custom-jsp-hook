@@ -248,10 +248,10 @@ Boolean extern = userCommunities.contains("extern");
                         <ul class="taglib-my-places">
                             <c:if test="<%= vgregion %>">
                                 <li class="public-community first">
-                                    <a href='<%=themeDisplay.getPortalURL() + "/group/vgregion/start"%>'>Start</a>
+                                    <a href='<%=themeDisplay.getPortalURL() + "/group/vgregion/pub-start"%>'>Start</a>
                                 </li>
                                 <li class="public-community">
-                                    <a href='<%=themeDisplay.getPortalURL() + "/group/vgregion/tyck-till"%>'>Tyck till</a>
+                                    <a href='<%=themeDisplay.getPortalURL() + "/group/vgregion/pub-tyck-till"%>'>Tyck till</a>
                                 </li>
                                 <li class="my-places">
                                     <a href='<%=themeDisplay.getPortalURL() + "/group/vgregion/om-regionportalen"%>'>Om Regionportalen</a>
