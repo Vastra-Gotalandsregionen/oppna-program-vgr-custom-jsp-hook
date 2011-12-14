@@ -254,7 +254,7 @@ Boolean extern = userCommunities.contains("extern");
                                     <a href='<%=themeDisplay.getPortalURL() + "/group/vgregion/pub-tyck-till"%>'>Tyck till</a>
                                 </li>
                                 <li class="my-places">
-                                    <a href='<%=themeDisplay.getPortalURL() + "/group/vgregion/om-regionportalen"%>'>Om Regionportalen</a>
+                                    <a href='<%=themeDisplay.getPortalURL() + "/group/vgregion/pub-om-regionportalen"%>'>Om Regionportalen</a>
                                 </li>
                             </c:if>
                             <c:if test="<%= extern %>">
