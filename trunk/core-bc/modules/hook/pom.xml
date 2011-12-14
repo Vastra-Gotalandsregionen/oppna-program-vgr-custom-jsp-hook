@@ -11,7 +11,7 @@ Generation time : 2011-11-16 10:41:22 CET
   <parent>
     <groupId>se.vgregion.vgr-custom-jsp-hook</groupId>
     <artifactId>vgr-custom-jsp-hook-core-bc</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
   </parent>
   <groupId>se.vgregion.vgr-custom-jsp-hook</groupId>
   <artifactId>vgr-custom-jsp-hook-core-bc-module-hook</artifactId>
