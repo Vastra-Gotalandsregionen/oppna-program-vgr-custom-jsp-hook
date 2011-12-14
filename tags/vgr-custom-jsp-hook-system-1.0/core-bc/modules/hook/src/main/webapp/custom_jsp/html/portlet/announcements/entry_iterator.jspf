@@ -1,0 +1,69 @@
+<%
+/**
+ * Copyright (c) 2000-2011 Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+%>
+
+<%
+//total = AnnouncementsEntryLocalServiceUtil.getEntriesCount(user.getUserId(), scopes, portletName.equals(PortletKeys.ALERTS), flagValue);
+
+//searchContainer.setTotal(total);
+
+//results = AnnouncementsEntryLocalServiceUtil.getEntries(user.getUserId(), scopes, portletName.equals(PortletKeys.ALERTS), flagValue, searchContainer.getStart(), searchContainer.getEnd());
+{
+    //this snippet is only used to count the total number of entries that we want to show the user (accumulated total from all pages)
+    List<AnnouncementsEntry> resultsAllPages = AnnouncementsEntryLocalServiceUtil.getEntries(user.getUserId(), scopes, portletName.equals(PortletKeys.ALERTS), flagValue, 0, Integer.MAX_VALUE);
+    List<AnnouncementsEntry> resultsToShow = new ArrayList<AnnouncementsEntry>();
+    for (AnnouncementsEntry entry : resultsAllPages) {
+        if (themeDisplay.getLayout().getFriendlyURL().replace("/", "").equalsIgnoreCase(entry.getType())) {
+            resultsToShow.add(entry);
+        }
+    }
+    //now resultsToShow is the filtered (filtered by getType()) results from all announcement entries
+    total = resultsToShow.size(); //total is used by the paginator to know how many pages that should be clickable
+
+    searchContainer.setTotal(total);
+
+    if (resultsToShow.size() >= searchContainer.getEnd()) {
+        results = resultsToShow.subList(searchContainer.getStart(), searchContainer.getEnd());
+    } else {
+        if (resultsToShow.size() > searchContainer.getStart()) {
+            results = resultsToShow.subList(searchContainer.getStart(), resultsToShow.size());
+        } else {
+            results = new ArrayList();
+        }
+    }
+}
+//here the edited part ends
+
+searchContainer.setResults(results);
+
+for (int i = 0; i < results.size(); i++) {
+	AnnouncementsEntry entry = results.get(i);
+
+	String className = StringPool.BLANK;
+
+	if (i == 0) {
+		className += " first";
+	}
+
+	if ((i + 1) == results.size()) {
+		className += " last";
+	}
+%>
+
+	<%@ include file="/html/portlet/announcements/view_entry.jspf" %>
+
+<%
+}
+%>
