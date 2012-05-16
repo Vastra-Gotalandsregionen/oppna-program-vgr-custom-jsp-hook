@@ -30,7 +30,7 @@ List layoutChildren = layout.getChildren(themeDisplay.getPermissionChecker());
 				<c:set var="childLayoutDescription" value="<%= curLayoutDescription %>" />
 				
 				<li class="${childLayoutCssClass}">
-					<a href="${childLayoutUrl}" target="${childLayoutTarget}">
+					<a href="${childLayoutUrl}" ${childLayoutTarget}>
 						<span class="title" id="aui_3_2_0_13824">${childLayoutTitle}</span>
 						<span class="description">${childLayoutDescription}</span>
 					</a>
