@@ -42,6 +42,13 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 
 %>
 
+<c:set var="paginatorType" value="<%= (String)request.getAttribute(\"liferay-ui:page-iterator:type\") %>" scope="page" />
+
+<%--
+	rp_paginator_type_1 should have first and last buttons (as well as previous and next)
+	rp_paginator_type_2 has previous and next buttons (but no first and last)
+--%>
+
 <c:if test='<%= (total > resultRowsSize) %>'>
 	<div class="rp-paging clearfix">
 		<ul>
@@ -84,32 +91,36 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 				<c:when test="<%= (pagesIteratorEnd > pagesIteratorBegin) %>">
 
 					<%-- Link to first --%>
-					<li>
-						<c:choose>
-							<c:when test="<%= cur != 1 %>">
-								<a href="<%= _getHREF(formName, curParam, 1, jsCall, url, urlAnchor) %>">
-									<liferay-ui:message key="first" />
-								</a>
-							</c:when>
-							<c:otherwise>
-								<span>
-									<liferay-ui:message key="first" />
-								</span>
-							</c:otherwise>
-						</c:choose>
-					</li>
-
+					
+					
+					<c:if test="${paginatorType == 'rp_paginator_type_1'}">
+						<li class="first">
+							<c:choose>
+								<c:when test="<%= cur != 1 %>">
+									<a href="<%= _getHREF(formName, curParam, 1, jsCall, url, urlAnchor) %>">
+										<liferay-ui:message key="first" />
+									</a>
+								</c:when>
+								<c:otherwise>
+									<span>
+										<liferay-ui:message key="first" />
+									</span>
+								</c:otherwise>
+							</c:choose>
+						</li>
+					</c:if>					
+					
 					<%-- Link to previous --%>
-					<li>
+					<li class="previous">
 						<c:choose>
 							<c:when test="<%= cur != 1 %>">
 								<a class="arrowleft" href="<%= _getHREF(formName, curParam, cur - 1, jsCall, url, urlAnchor) %>" title="<liferay-ui:message key="previous" />">
-									&laquo;
+									<liferay-ui:message key="previous" />
 								</a>
 							</c:when>
 							<c:otherwise>
 								<span class="arrowleft" title="<liferay-ui:message key="previous" />">
-									&laquo;
+									<liferay-ui:message key="previous" />
 								</span>
 							</c:otherwise>
 						</c:choose>
@@ -121,7 +132,7 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 						<li>
 							<c:choose>
 								<c:when test="<%= (i==cur) %>">
-									<strong><c:out value="${i}" /></strong>
+									<span class="current"><c:out value="${i}" /></span>
 								</c:when>
 								<c:otherwise>
 									<% String curURL = _getHREF(formName, curParam, i, jsCall, url, urlAnchor); %>
@@ -133,37 +144,38 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 					</c:forEach>
 					
 					<%-- Link to next --%>
-					<li>
+					<li class="next">
 						<c:choose>
 							<c:when test="<%= cur != pages %>">
 								<a class="arrowright" href="<%= _getHREF(formName, curParam, cur + 1, jsCall, url, urlAnchor) %>" title="<liferay-ui:message key="next" />">
-									&raquo;
+									<liferay-ui:message key="next" />
 								</a>
 							</c:when>
 							<c:otherwise>
 								<span class="arrowright" title="<liferay-ui:message key="next" />">
-									&raquo;
+									<liferay-ui:message key="next" />
 								</span>
 							</c:otherwise>
 						</c:choose>
 					</li>
 					
-					<%-- Link to last --%>
-					<li>
-						<c:choose>
-							<c:when test="<%= cur != pages %>">
-								<a href="<%= _getHREF(formName, curParam, pages, jsCall, url, urlAnchor) %>">
-									<liferay-ui:message key="last" />
-								</a>
-							</c:when>
-							<c:otherwise>
-								<span>
-									<liferay-ui:message key="last" />
-								</span>
-							</c:otherwise>
-						</c:choose>
-					</li>
-					
+					<c:if test="${paginatorType == 'rp_paginator_type_1'}">
+						<%-- Link to last --%>
+						<li class="last">
+							<c:choose>
+								<c:when test="<%= cur != pages %>">
+									<a href="<%= _getHREF(formName, curParam, pages, jsCall, url, urlAnchor) %>">
+										<liferay-ui:message key="last" />
+									</a>
+								</c:when>
+								<c:otherwise>
+									<span>
+										<liferay-ui:message key="last" />
+									</span>
+								</c:otherwise>
+							</c:choose>
+						</li>
+					</c:if>					
 					
 				</c:when>
 				<c:otherwise></c:otherwise>
@@ -171,28 +183,6 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 		</ul>
 	</div>
 </c:if>
-		
-<%--
-<div class="rp-paging actionlinks clearfix">
-	<ul>
-		<li><a href="#">Första</a></li>
-		<li><a href="#" class="arrowleft" title="Föregående">&laquo;</a></li>
-		<li><a href="#">1</a></li>
-		<li><a href="#">2</a></li>
-		<li><a href="#">3</a></li>
-		<li><a href="#">4</a></li>
-		<li><strong>5</strong></li>
-		<li><a href="#">6</a></li>
-		<li><a href="#">7</a></li>
-		<li><a href="#">8</a></li>
-		<li><a href="#">9</a></li>
-		<li><a href="#">10</a></li>
-		<li><a href="#" class="arrowright" title="Nästa">&raquo;</a></li>
-		<li><a href="#">Sista</a></li>
-	</ul>
-</div>
-		
---%>
 
 <%!
 private String _getHREF(String formName, String curParam, int cur, String jsCall, String url, String urlAnchor) throws Exception {
