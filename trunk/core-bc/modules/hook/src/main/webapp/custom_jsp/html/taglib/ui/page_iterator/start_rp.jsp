@@ -40,10 +40,6 @@ String deltaURL = HttpUtil.removeParameter(url, namespace + deltaParam);
 
 NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 
-
-System.out.println("Page Iterator - RP iterator");
-System.out.println("Page Iterator - RP iterator - cur is: " + cur);
-
 %>
 
 <c:if test='<%= (total > resultRowsSize) %>'>
