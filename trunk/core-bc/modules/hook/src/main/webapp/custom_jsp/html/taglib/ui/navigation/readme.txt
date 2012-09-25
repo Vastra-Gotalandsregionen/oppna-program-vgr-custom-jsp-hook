@@ -1,5 +1,5 @@
 The custom jsp (page.jsp) for the navigation taglib should be used
-together with the new theme for regionportalen (rp-new-theme).
+together with the new theme for regionportalen (rp-new-theme pr vgr-alfa-theme).
 
 The jsp uses expando values for pages (layouts).
 These expando values should be configured in the control panel (custom fields for page)

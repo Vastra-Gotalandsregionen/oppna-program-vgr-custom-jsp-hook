@@ -31,8 +31,10 @@ List layoutChildren = layout.getChildren(themeDisplay.getPermissionChecker());
 				
 				<li class="${childLayoutCssClass}">
 					<a href="${childLayoutUrl}" ${childLayoutTarget}>
-						<span class="title" id="aui_3_2_0_13824">${childLayoutTitle}</span>
-						<span class="description">${childLayoutDescription}</span>
+						<span class="inner">
+							<span class="title" id="aui_3_2_0_13824">${childLayoutTitle}</span>
+							<span class="description">${childLayoutDescription}</span>
+						</span>
 					</a>
 				</li>
 			</c:forEach>
