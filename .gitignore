@@ -8,4 +8,5 @@ rebel.xml
 
 target/*
 
+core-bc/modules/hook/bin/*
 core-bc/modules/hook/target/*
