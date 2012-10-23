@@ -16,3 +16,5 @@
 *	At line 27 the custom variable resultsEntryIndex is fetched
 	If entry is odd, a class "entry-odd" is added to the entry div:
 	<div class="entry <%= entry.isApproved() ? "" : "draft" %> <%= entryCssClass %>">
+
+* At line 77 changed date format from using dateFormatDateTime to using dateFormatDate so that time is not shown

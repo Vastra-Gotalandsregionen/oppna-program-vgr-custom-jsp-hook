@@ -74,7 +74,13 @@ if(resultsEntryIndex == -1 || resultsEntryIndex%2 == 0) {
 				</div>
 
 				<div class="entry-date">
+					<%-- 
 					<%= dateFormatDateTime.format(entry.getDisplayDate()) %>
+					--%>
+					<%
+					Format myDateFormatDate = FastDateFormatFactoryUtil.getDate(locale, timeZone);
+					%>
+					<%= myDateFormatDate.format(entry.getDisplayDate()) %>
 				</div>
 			</div>
 
