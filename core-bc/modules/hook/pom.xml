@@ -6,7 +6,8 @@ This is the Web-app Maven POM.
 Template version: 1.4
 Generation time : 2011-11-16 10:41:22 CET
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>se.vgregion.vgr-custom-jsp-hook</groupId>
@@ -28,6 +29,26 @@ Generation time : 2011-11-16 10:41:22 CET
         <artifactId>maven-eclipse-plugin</artifactId>
         <configuration>
           <wtpContextName>${project.artifactId}</wtpContextName>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila.maven-license-plugin</groupId>
+        <artifactId>maven-license-plugin</artifactId>
+        <version>1.8.0</version>
+        <configuration>
+          <header>http://oppna-program.googlecode.com/files/header.txt</header>
+          <skipExistingHeaders>true</skipExistingHeaders>
+          <excludes>
+            <exclude>target/**</exclude>
+            <exclude>**/NOTICES.txt</exclude>
+            <exclude>thirdpartylicenses/**</exclude>
+            <exclude>**/LICENSE.rtf</exclude>
+            <exclude>**/context.xml</exclude>
+            <exclude>**/*.properties</exclude>
+            <exclude>**/*.sql</exclude>
+            <exclude>**/*.jsp</exclude> <!-- Added -->
+            <exclude>**/*.jspf</exclude> <!-- Added -->
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
