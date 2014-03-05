@@ -47,6 +47,7 @@ Generation time : 2011-11-16 10:41:22 CET
             <exclude>**/*.sql</exclude>
             <exclude>**/*.jsp</exclude> <!-- Added -->
             <exclude>**/*.jspf</exclude> <!-- Added -->
+            <exclude>**/aui-*.js</exclude> <!-- Added -->
           </excludes>
         </configuration>
       </plugin>
