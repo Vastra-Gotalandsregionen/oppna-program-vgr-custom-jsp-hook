@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2011 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of the Liferay Enterprise
  * Subscription License ("License"). You may not use this file except in
@@ -17,356 +17,273 @@
 <%@ include file="/html/taglib/init.jsp" %>
 
 <%
-String formName = namespace + request.getAttribute("liferay-ui:page-iterator:formName");
-int cur = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:cur"));
-String curParam = (String)request.getAttribute("liferay-ui:page-iterator:curParam");
-int delta = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:delta"));
-boolean deltaConfigurable = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:page-iterator:deltaConfigurable"));
-String deltaParam = (String)request.getAttribute("liferay-ui:page-iterator:deltaParam");
-String jsCall = GetterUtil.getString((String)request.getAttribute("liferay-ui:page-iterator:jsCall"));
-int maxPages = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:maxPages"));
-String target = (String)request.getAttribute("liferay-ui:page-iterator:target");
-int total = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:total"));
-String type = (String)request.getAttribute("liferay-ui:page-iterator:type");
-String url = (String)request.getAttribute("liferay-ui:page-iterator:url");
-String urlAnchor = (String)request.getAttribute("liferay-ui:page-iterator:urlAnchor");
-int pages = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:pages"));
+    String formName = namespace + request.getAttribute("liferay-ui:page-iterator:formName");
+    int cur = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:cur"));
+    String curParam = (String)request.getAttribute("liferay-ui:page-iterator:curParam");
+    int delta = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:delta"));
+    boolean deltaConfigurable = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:page-iterator:deltaConfigurable"));
+    String deltaParam = (String)request.getAttribute("liferay-ui:page-iterator:deltaParam");
+    String id = (String)request.getAttribute("liferay-ui:page-iterator:id");
+    String jsCall = GetterUtil.getString((String)request.getAttribute("liferay-ui:page-iterator:jsCall"));
+    int maxPages = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:maxPages"));
+    String target = (String)request.getAttribute("liferay-ui:page-iterator:target");
+    int total = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:total"));
+    String type = (String)request.getAttribute("liferay-ui:page-iterator:type");
+    String url = (String)request.getAttribute("liferay-ui:page-iterator:url");
+    String urlAnchor = (String)request.getAttribute("liferay-ui:page-iterator:urlAnchor");
+    int pages = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:page-iterator:pages"));
 
-int start = (cur - 1) * delta;
-int end = cur * delta;
+    if (Validator.isNull(id)) {
+        id = PortalUtil.generateRandomKey(request, "taglib-page-iterator");
+    }
 
-if (end > total) {
-	end = total;
-}
+    int start = (cur - 1) * delta;
+    int end = cur * delta;
 
-int resultRowsSize = delta;
+    if (end > total) {
+        end = total;
+    }
 
-if (total < delta) {
-	resultRowsSize = total;
-}
-else {
-	resultRowsSize = total - ((cur - 1) * delta);
+    int resultRowsSize = delta;
 
-	if (resultRowsSize > delta) {
-		resultRowsSize = delta;
-	}
-}
+    if (total < delta) {
+        resultRowsSize = total;
+    }
+    else {
+        resultRowsSize = total - ((cur - 1) * delta);
 
-String deltaURL = HttpUtil.removeParameter(url, namespace + deltaParam);
+        if (resultRowsSize > delta) {
+            resultRowsSize = delta;
+        }
+    }
 
-NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+    String deltaURL = HttpUtil.removeParameter(url, namespace + deltaParam);
+
+    NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 %>
 
-<c:if test='<%= type.equals("more") || type.equals("regular") || (type.equals("article") && (total > resultRowsSize)) %>'>
-	<div class="taglib-page-iterator">
-</c:if>
-
-<c:if test='<%= type.equals("regular") %>'>
-	<%@ include file="/html/taglib/ui/page_iterator/showing_x_results.jspf" %>
+<c:if test='<%= type.equals("approximate") || type.equals("more") || type.equals("regular") || (type.equals("article") && (total > resultRowsSize)) %>'>
+    <div class="taglib-page-iterator" id="<%= namespace + id %>">
 </c:if>
 
 <c:if test='<%= type.equals("article") && (total > resultRowsSize) %>'>
-	<div class="search-results">
-		<liferay-ui:message key="pages" />:
+    <div class="search-results">
+        <liferay-ui:message key="pages" />:
 
-		<%
-		int pagesIteratorMax = maxPages;
-		int pagesIteratorBegin = 1;
-		int pagesIteratorEnd = pages;
+        <%
+            int pagesIteratorMax = maxPages;
+            int pagesIteratorBegin = 1;
+            int pagesIteratorEnd = pages;
 
-		if (pages > pagesIteratorMax) {
-			pagesIteratorBegin = cur - pagesIteratorMax;
-			pagesIteratorEnd = cur + pagesIteratorMax;
+            if (pages > pagesIteratorMax) {
+                pagesIteratorBegin = cur - pagesIteratorMax;
+                pagesIteratorEnd = cur + pagesIteratorMax;
 
-			if (pagesIteratorBegin < 1) {
-				pagesIteratorBegin = 1;
-			}
+                if (pagesIteratorBegin < 1) {
+                    pagesIteratorBegin = 1;
+                }
 
-			if (pagesIteratorEnd > pages) {
-				pagesIteratorEnd = pages;
-			}
-		}
+                if (pagesIteratorEnd > pages) {
+                    pagesIteratorEnd = pages;
+                }
+            }
 
-		String content = null;
+            String content = null;
 
-		if (pagesIteratorEnd < pagesIteratorBegin) {
-			content = StringPool.BLANK;
-		}
-		else {
-			StringBundler sb = new StringBundler((pagesIteratorEnd - pagesIteratorBegin + 1) * 6);
+            if (pagesIteratorEnd < pagesIteratorBegin) {
+                content = StringPool.BLANK;
+            }
+            else {
+                StringBundler sb = new StringBundler((pagesIteratorEnd - pagesIteratorBegin + 1) * 6);
 
-			for (int i = pagesIteratorBegin; i <= pagesIteratorEnd; i++) {
-				if (i == cur) {
-					sb.append("<strong class='journal-article-page-number'>");
-					sb.append(i);
-					sb.append("</strong>");
-				}
-				else {
-					sb.append("<a class='journal-article-page-number' href='");
-					sb.append(_getHREF(formName, curParam, i, jsCall, url, urlAnchor));
-					sb.append("'>");
-					sb.append(i);
-					sb.append("</a>");
-				}
+                for (int i = pagesIteratorBegin; i <= pagesIteratorEnd; i++) {
+                    if (i == cur) {
+                        sb.append("<strong class='journal-article-page-number'>");
+                        sb.append(i);
+                        sb.append("</strong>");
+                    }
+                    else {
+                        sb.append("<a class='journal-article-page-number' href='");
+                        sb.append(_getHREF(formName, namespace + curParam, i, jsCall, url, urlAnchor));
+                        sb.append("'>");
+                        sb.append(i);
+                        sb.append("</a>");
+                    }
 
-				sb.append("&nbsp;&nbsp;");
-			}
+                    sb.append("&nbsp;&nbsp;");
+                }
 
-			content = sb.toString();
-		}
-		%>
+                content = sb.toString();
+            }
+        %>
 
-		<%= content %>
-	</div>
+        <%= content %>
+    </div>
 </c:if>
 
-<c:if test="<%= total > delta %>">
-	<div class="search-pages">
-		<c:if test='<%= type.equals("more") || type.equals("regular") %>'>
-			<c:if test="<%= PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES.length > 0 %>">
-				<div class="delta-selector">
-					<c:choose>
-						<c:when test="<%= !deltaConfigurable || themeDisplay.isFacebook() %>">
-							<liferay-ui:message key="items-per-page" />
+<c:if test="<%= (total > delta) || (total > PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES[0]) %>">
+    <div class="clearfix lfr-pagination">
+        <c:if test='<%= type.equals("regular") %>'>
+            <c:if test="<%= PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES.length > 0 %>">
+                <div class="lfr-pagination-config">
+                    <div class="lfr-pagination-page-selector">
+                        <c:choose>
+                            <c:when test="<%= themeDisplay.isFacebook() %>">
+                                <liferay-ui:message key="page" />
 
-							<%= delta %>
-						</c:when>
-						<c:otherwise>
-							<aui:select changesContext="<%= true %>" inlineLabel="left" name="itemsPerPage" onchange='<%= namespace + deltaParam + "updateDelta(this);" %>'>
+                                <%= cur %>
+                            </c:when>
+                            <c:otherwise>
 
-								<%
-								for (int curDelta : PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES) {
-									if (curDelta > SearchContainer.MAX_DELTA) {
-										continue;
-									}
-								%>
+                                <%
+                                    String suffix = LanguageUtil.get(pageContext, "of") + StringPool.SPACE + numberFormat.format(pages);
 
-									<aui:option label="<%= curDelta %>" selected="<%= delta == curDelta %>"  />
+                                    if (type.equals("approximate") || type.equals("more")) {
+                                        suffix = StringPool.BLANK;
+                                    }
+                                %>
 
-								<%
-								}
-								%>
+                                <liferay-ui:icon-menu
+                                        cssClass="current-page-menu"
+                                        direction="down"
+                                        icon=""
+                                        message='<%= LanguageUtil.get(pageContext, "page") + StringPool.SPACE + cur + StringPool.SPACE + suffix %>'
+                                        showWhenSingleIcon="true"
+                                        >
 
-							</aui:select>
-						</c:otherwise>
-					</c:choose>
-				</div>
-			</c:if>
+                                    <%
+                                        int pagesIteratorMax = maxPages;
+                                        int pagesIteratorBegin = 1;
+                                        int pagesIteratorEnd = pages;
 
-			<div class="page-selector">
-				<c:choose>
-					<c:when test="<%= themeDisplay.isFacebook() %>">
-						<liferay-ui:message key="page" />
+                                        if (pages > pagesIteratorMax) {
+                                            pagesIteratorBegin = cur - pagesIteratorMax;
+                                            pagesIteratorEnd = cur + pagesIteratorMax;
 
-						<%= cur %>
-					</c:when>
-					<c:otherwise>
+                                            if (pagesIteratorBegin < 1) {
+                                                pagesIteratorBegin = 1;
+                                            }
 
-						<%
-						String suffix = LanguageUtil.get(pageContext, "of") + StringPool.SPACE + numberFormat.format(pages);
+                                            if (pagesIteratorEnd > pages) {
+                                                pagesIteratorEnd = pages;
+                                            }
+                                        }
 
-						if (type.equals("more")) {
-							suffix = StringPool.BLANK;
-						}
-						%>
+                                        for (int i = pagesIteratorBegin; i <= pagesIteratorEnd; i++) {
+                                    %>
 
-						<aui:select changesContext="<%= true %>" inlineLabel="left" name="page" onchange='<%= namespace + curParam + "updateCur(this);" %>' suffix='<%= suffix %>'>
+                                    <liferay-ui:icon
+                                            message="<%= String.valueOf(i) %>"
+                                            url='<%= url + namespace + curParam + "=" + i + urlAnchor %>'
+                                            />
 
-							<%
-							int pagesIteratorMax = maxPages;
-							int pagesIteratorBegin = 1;
-							int pagesIteratorEnd = pages;
+                                    <%
+                                        }
+                                    %>
 
-							if (pages > pagesIteratorMax) {
-								pagesIteratorBegin = cur - pagesIteratorMax;
-								pagesIteratorEnd = cur + pagesIteratorMax;
+                                </liferay-ui:icon-menu>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div class="lfr-pagination-delta-selector">
+                        <c:choose>
+                            <c:when test="<%= !deltaConfigurable || themeDisplay.isFacebook() %>">
+                                &mdash;
 
-								if (pagesIteratorBegin < 1) {
-									pagesIteratorBegin = 1;
-								}
+                                <%= delta %>
 
-								if (pagesIteratorEnd > pages) {
-									pagesIteratorEnd = pages;
-								}
-							}
+                                <liferay-ui:message key="items-per-page" />
+                            </c:when>
+                            <c:otherwise>
+                                <liferay-ui:icon-menu
+                                        direction="down"
+                                        icon=""
+                                        message='<%= delta + StringPool.SPACE + LanguageUtil.get(pageContext, "items-per-page") %>'
+                                        showWhenSingleIcon="true"
+                                        >
 
-							for (int i = pagesIteratorBegin; i <= pagesIteratorEnd; i++) {
-							%>
+                                    <%
+                                        for (int curDelta : PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES) {
+                                            if (curDelta > SearchContainer.MAX_DELTA) {
+                                                continue;
+                                            }
+                                    %>
 
-								<aui:option label="<%= i %>" selected="<%= (i == cur) %>" />
+                                    <liferay-ui:icon
+                                            message="<%= String.valueOf(curDelta) %>"
+                                            url='<%= deltaURL + "&" + namespace + deltaParam + "=" + curDelta + urlAnchor %>'
+                                            />
 
-							<%
-							}
-							%>
+                                    <%
+                                        }
+                                    %>
 
-						</aui:select>
-					</c:otherwise>
-				</c:choose>
-			</div>
-		</c:if>
-
-		<div class="page-links">
-			<c:if test='<%= type.equals("more") || type.equals("regular") %>'>
-				<c:choose>
-					<c:when test="<%= cur != 1 %>">
-						<a class="first" href="<%= _getHREF(formName, curParam, 1, jsCall, url, urlAnchor) %>" target="<%= target %>">
-					</c:when>
-					<c:otherwise>
-						<span class="first">
-					</c:otherwise>
-				</c:choose>
-
-				<liferay-ui:message key="first" />
-
-				<c:choose>
-					<c:when test="<%= cur != 1 %>">
-						</a>
-					</c:when>
-					<c:otherwise>
-						</span>
-					</c:otherwise>
-				</c:choose>
-			</c:if>
-
-			<c:choose>
-				<c:when test="<%= cur != 1 %>">
-					<a class="previous" href="<%= _getHREF(formName, curParam, cur - 1, jsCall, url, urlAnchor) %>" target="<%= target %>">
-				</c:when>
-				<c:when test='<%= type.equals("more") || type.equals("regular") %>'>
-					<span class="previous">
-				</c:when>
-			</c:choose>
-
-			<c:if test='<%= (type.equals("more") || type.equals("regular") || cur != 1) %>'>
-				<liferay-ui:message key="previous" />
-			</c:if>
-
-			<c:choose>
-				<c:when test="<%= cur != 1 %>">
-					</a>
-				</c:when>
-				<c:when test='<%= type.equals("more") || type.equals("regular") %>'>
-					</span>
-				</c:when>
-			</c:choose>
-
-			<c:choose>
-				<c:when test="<%= cur != pages %>">
-					<a class="next" href="<%= _getHREF(formName, curParam, cur + 1, jsCall, url, urlAnchor) %>" target="<%= target %>">
-				</c:when>
-				<c:when test='<%= type.equals("more") || type.equals("regular") %>'>
-					<span class="next">
-				</c:when>
-			</c:choose>
-
-			<c:if test='<%= (type.equals("more") || type.equals("regular") || cur != pages) %>'>
-				<c:choose>
-					<c:when test='<%= type.equals("more") %>'>
-						<liferay-ui:message key="more" />
-					</c:when>
-					<c:otherwise>
-						<liferay-ui:message key="next" />
-					</c:otherwise>
-				</c:choose>
-			</c:if>
-
-			<c:choose>
-				<c:when test="<%= cur != pages %>">
-					</a>
-				</c:when>
-				<c:when test='<%= type.equals("more") || type.equals("regular") %>'>
-					</span>
-				</c:when>
-			</c:choose>
-
-			<c:if test='<%= type.equals("regular") %>'>
-				<c:choose>
-					<c:when test="<%= cur != pages %>">
-						<a class="last" href="<%= _getHREF(formName, curParam, pages, jsCall, url, urlAnchor) %>" target="<%= target %>">
-					</c:when>
-					<c:otherwise>
-						<span class="last">
-					</c:otherwise>
-				</c:choose>
-
-				<liferay-ui:message key="last" />
-
-				<c:choose>
-					<c:when test="<%= cur != pages %>">
-						</a>
-					</c:when>
-					<c:otherwise>
-						</span>
-					</c:otherwise>
-				</c:choose>
-			</c:if>
-		</div>
-	</div>
+                                </liferay-ui:icon-menu>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+            </c:if>
+    </div>
 </c:if>
 
-<c:if test='<%= type.equals("more") || type.equals("regular") || (type.equals("article") && (total > resultRowsSize)) %>'>
-	</div>
+<c:if test='<%= type.equals("approximate") || type.equals("more") || type.equals("regular") %>'>
+    <%@ include file="/html/taglib/ui/page_iterator/showing_x_results.jspf" %>
 </c:if>
 
-<c:if test='<%= type.equals("more") || type.equals("regular") && !themeDisplay.isFacebook() %>'>
-	<aui:script>
-		Liferay.provide(
-			window,
-			'<%= namespace %><%= curParam %>updateCur',
-			function(box) {
-				var A = AUI();
+<ul class="pager lfr-pagination-buttons">
+    <c:if test='<%= type.equals("approximate") || type.equals("more") || type.equals("regular") %>'>
+        <li class="<%= (cur != 1) ? "" : "disabled" %> first">
+            <a href="<%= (cur != 1) ? _getHREF(formName, namespace + curParam, 1, jsCall, url, urlAnchor) : "javascript:;" %>" target="<%= target %>">
+                &larr; <liferay-ui:message key="first" />
+            </a>
+        </li>
+    </c:if>
 
-				var cur = A.one(box).val();
+    <li class="<%= (cur != 1) ? "" : "disabled" %>">
+        <a href="<%= (cur != 1) ? _getHREF(formName, namespace + curParam, cur - 1, jsCall, url, urlAnchor) : "javascript:;" %>" target="<%= target %>">
+            <liferay-ui:message key="previous" />
+        </a>
+    </li>
 
-				if (<%= Validator.isNotNull(url) %>) {
-					var href = "<%= url %><%= namespace %><%= curParam %>=" + cur + "<%= urlAnchor %>";
+    <li class="<%= (cur != pages) ? "" : "disabled" %>">
+        <a href="<%= (cur != pages) ? _getHREF(formName, namespace + curParam, cur + 1, jsCall, url, urlAnchor) : "javascript:;" %>" target="<%= target %>">
+            <c:choose>
+                <c:when test='<%= type.equals("approximate") || type.equals("more") %>'>
+                    <liferay-ui:message key="more" />
+                </c:when>
+                <c:otherwise>
+                    <liferay-ui:message key="next" />
+                </c:otherwise>
+            </c:choose>
+        </a>
+    </li>
 
-					location.href = href;
-				}
-				else {
-					document.<%= formName %>.<%= curParam %>.value = cur;
+    <c:if test='<%= type.equals("regular") %>'>
+        <li class="<%= (cur != pages) ? "" : "disabled" %> last">
+            <a href="<%= (cur != pages) ? _getHREF(formName, namespace + curParam, pages, jsCall, url, urlAnchor) : "javascript:;" %>" target="<%= target %>">
+                <liferay-ui:message key="last" /> &rarr;
+            </a>
+        </li>
+    </c:if>
+</ul>
+</div>
+</c:if>
 
-					<%= jsCall %>;
-				}
-			},
-			['aui-base']
-		);
-
-		Liferay.provide(
-			window,
-			'<%= namespace %><%= deltaParam %>updateDelta',
-			function(box) {
-				var A = AUI();
-
-				var delta = A.one(box).val();
-
-				if (<%= Validator.isNotNull(url) %>) {
-					var href = "<%= deltaURL %>&<%= namespace %><%= deltaParam %>=" + delta + "<%= urlAnchor %>";
-
-					location.href = href;
-				}
-				else {
-					document.<%= formName %>.<%= deltaParam %>.value = delta;
-
-					<%= jsCall %>;
-				}
-			},
-			['aui-base']
-		);
-	</aui:script>
+<c:if test='<%= type.equals("approximate") || type.equals("more") || type.equals("regular") || (type.equals("article") && (total > resultRowsSize)) %>'>
+    </div>
 </c:if>
 
 <%!
-private String _getHREF(String formName, String curParam, int cur, String jsCall, String url, String urlAnchor) throws Exception {
-	String href = null;
+    private String _getHREF(String formName, String curParam, int cur, String jsCall, String url, String urlAnchor) throws Exception {
+        String href = null;
 
-	if (Validator.isNotNull(url)) {
-		href = url + curParam + "=" + cur + urlAnchor;
-	}
-	else {
-		href = "javascript:document." + formName + "." + curParam + ".value = '" + cur + "'; " + jsCall;
-	}
+        if (Validator.isNotNull(url)) {
+            href = HtmlUtil.escape(url + curParam + "=" + cur + urlAnchor);
+        }
+        else {
+            href = "javascript:document." + formName + "." + curParam + ".value = '" + cur + "'; " + jsCall;
+        }
 
-	return href;
-}
+        return href;
+    }
 %>
