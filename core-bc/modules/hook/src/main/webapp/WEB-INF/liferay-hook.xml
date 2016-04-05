@@ -23,4 +23,5 @@
 <hook>
   <language-properties>content/Language_sv.properties</language-properties>
   <custom-jsp-dir>/custom_jsp</custom-jsp-dir>
+  <custom-jsp-global>false</custom-jsp-global>
 </hook>
