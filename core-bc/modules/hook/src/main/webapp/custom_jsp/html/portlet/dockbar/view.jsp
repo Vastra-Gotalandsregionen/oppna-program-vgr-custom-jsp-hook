@@ -13,9 +13,7 @@
  *
  */
 --%>
-<%-- Look for the comment marked with "2014-06-19" below. This overridden jsp is to make the toggle-controls button
- always visible. If the other controls aren't visible it's impossible to know you should hover them in order to make the
- toggle-controls button visible. --%>
+
 <%@ include file="/html/portlet/dockbar/init.jsp" %>
 
 <%
@@ -30,7 +28,7 @@
     boolean hasLayoutCustomizePermission = LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.CUSTOMIZE);
     boolean hasLayoutUpdatePermission = LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.UPDATE);
 
-    String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "liferay_toggle_controls", ""));
+    String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "liferay_toggle_controls", "visible"));
 %>
 
 <aui:nav-bar cssClass="navbar-static-top dockbar" data-namespace="<%= renderResponse.getNamespace() %>" id="dockbar">
@@ -87,12 +85,12 @@
             }
         %>
 
-        <c:if test="<%= controlPanelCategory.startsWith(PortletCategoryKeys.CURRENT_SITE) || !controlPanelCategory.equals(PortletCategoryKeys.MY) %>">
+        <c:if test="<%= controlPanelCategory.startsWith(PortletCategoryKeys.CURRENT_SITE) || !(controlPanelCategory.equals(PortletCategoryKeys.MY) && PropsValues.DOCKBAR_ADMINISTRATIVE_LINKS_SHOW_IN_POP_UP) %>">
             <div class="brand">
                 <a class="control-panel-back-link" href="<%= backURL %>" title="<liferay-ui:message key="back" />">
-                <i class="control-panel-back-icon icon-chevron-sign-left"></i>
+                    <i class="control-panel-back-icon icon-chevron-sign-left"></i>
 
-					<span class="control-panel-back-text helper-hidden-accessible">
+                    <span class="control-panel-back-text helper-hidden-accessible">
 						<liferay-ui:message key="back" />
 					</span>
                 </a>
@@ -104,9 +102,14 @@
 
                             <span class="divider">/</span>
 
-							<span class="site-administration-title">
+                            <span class="site-administration-title">
 								<liferay-ui:message key="site-administration" />
 							</span>
+                        </c:when>
+                        <c:when test="<%= controlPanelCategory.equals(PortletCategoryKeys.MY) %>">
+                            <a href="<%= themeDisplay.getURLMyAccount() %>">
+                                <liferay-ui:message key="my-account" />
+                            </a>
                         </c:when>
                         <c:otherwise>
                             <a href="<%= themeDisplay.getURLControlPanel() %>">
@@ -170,58 +173,63 @@
         boolean userSetupComplete = user.isSetupComplete();
 
         boolean portalMessageUseAnimation = GetterUtil.getBoolean(PortalMessages.get(request, PortalMessages.KEY_ANIMATION), true);
+
+        boolean hasLayoutAddPermission = false;
+
+        if (layout.getParentLayoutId() == LayoutConstants.DEFAULT_PARENT_LAYOUT_ID) {
+            hasLayoutAddPermission = GroupPermissionUtil.contains(permissionChecker, group.getGroupId(), ActionKeys.ADD_LAYOUT);
+        }
+        else {
+            hasLayoutAddPermission = LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.ADD_LAYOUT);
+        }
+
+        boolean showAddControls = hasLayoutAddPermission || hasLayoutUpdatePermission || (layoutTypePortlet.isCustomizable() && layoutTypePortlet.isCustomizedView() && hasLayoutCustomizePermission);
+        boolean showEditControls = themeDisplay.isShowLayoutTemplatesIcon() || themeDisplay.isShowPageSettingsIcon();
+        boolean showPreviewControls = hasLayoutUpdatePermission || GroupPermissionUtil.contains(permissionChecker, group.getGroupId(), ActionKeys.PREVIEW_IN_DEVICE);
+        boolean showToggleControls = (!group.hasStagingGroup() || group.isStagingGroup()) && (hasLayoutUpdatePermission || (layoutTypePortlet.isCustomizable() && layoutTypePortlet.isCustomizedView() && hasLayoutCustomizePermission) || PortletPermissionUtil.hasConfigurationPermission(permissionChecker, themeDisplay.getSiteGroupId(), layout, ActionKeys.CONFIGURATION));
     %>
 
-    <aui:nav ariaLabel='<%= LanguageUtil.get(pageContext, "layout-controls") %>' collapsible="<%= true %>" cssClass='<%= portalMessageUseAnimation ? "nav-add-controls" : "nav-add-controls nav-add-controls-notice" %>' icon="pencil" id="navAddControls">
+    <%
+        // 2016-11-11: This line is the only modified line, compared to LP 6.2 SP14, as of this date.
+        boolean userHasAnySiteRole = UserGroupRoleLocalServiceUtil.getUserGroupRoles(permissionChecker.getUserId(), scopeGroupId) != null && UserGroupRoleLocalServiceUtil.getUserGroupRoles(permissionChecker.getUserId(), scopeGroupId).size() > 0;
+        showToggleControls = showToggleControls || userHasAnySiteRole;
+    %>
 
-        <%
-            boolean hasLayoutAddPermission = false;
+    <c:if test="<%= !group.isControlPanel() && userSetupComplete && (showAddControls || showPreviewControls || showEditControls || showToggleControls) %>">
+        <aui:nav ariaLabel='<%= LanguageUtil.get(pageContext, "layout-controls") %>' collapsible="<%= true %>" cssClass='<%= portalMessageUseAnimation ? "nav-add-controls" : "nav-add-controls nav-add-controls-notice" %>' icon="pencil" id="navAddControls">
+            <c:if test="<%= showAddControls %>">
+                <portlet:renderURL var="addURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
+                    <portlet:param name="struts_action" value="/dockbar/add_panel" />
+                    <portlet:param name="stateMaximized" value="<%= String.valueOf(themeDisplay.isStateMaximized()) %>" />
+                    <portlet:param name="viewEntries" value="<%= Boolean.TRUE.toString() %>" />
+                </portlet:renderURL>
 
-            if (layout.getParentLayoutId() == LayoutConstants.DEFAULT_PARENT_LAYOUT_ID) {
-                hasLayoutAddPermission = GroupPermissionUtil.contains(permissionChecker, group.getGroupId(), ActionKeys.ADD_LAYOUT);
-            }
-            else {
-                hasLayoutAddPermission = LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.ADD_LAYOUT);
-            }
-        %>
+                <aui:nav-item anchorId="addPanel" cssClass="site-add-controls" data-panelURL="<%= addURL %>" href="javascript:;" iconCssClass="icon-plus" label="add" />
+            </c:if>
 
-        <c:if test="<%= !group.isControlPanel() && userSetupComplete && (hasLayoutAddPermission || hasLayoutUpdatePermission || (layoutTypePortlet.isCustomizable() && layoutTypePortlet.isCustomizedView() && hasLayoutCustomizePermission)) %>">
-            <portlet:renderURL var="addURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
-                <portlet:param name="struts_action" value="/dockbar/add_panel" />
-                <portlet:param name="stateMaximized" value="<%= String.valueOf(themeDisplay.isStateMaximized()) %>" />
-                <portlet:param name="viewEntries" value="<%= Boolean.TRUE.toString() %>" />
-            </portlet:renderURL>
+            <c:if test="<%= showPreviewControls %>">
+                <portlet:renderURL var="previewContentURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
+                    <portlet:param name="struts_action" value="/dockbar/preview_panel" />
+                </portlet:renderURL>
 
-            <aui:nav-item anchorId="addPanel" cssClass="site-add-controls" data-panelURL="<%= addURL %>" href="javascript:;" iconCssClass="icon-plus" label="add" />
-        </c:if>
+                <aui:nav-item anchorId="previewPanel" cssClass="page-preview-controls" data-panelURL="<%= previewContentURL %>" href="javascript:;" iconCssClass="icon-desktop" label="preview" />
+            </c:if>
 
-        <c:if test="<%= !group.isControlPanel() && userSetupComplete && (hasLayoutUpdatePermission || GroupPermissionUtil.contains(permissionChecker, group.getGroupId(), ActionKeys.PREVIEW_IN_DEVICE)) %>">
-            <portlet:renderURL var="previewContentURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
-                <portlet:param name="struts_action" value="/dockbar/preview_panel" />
-            </portlet:renderURL>
+            <c:if test="<%= showEditControls %>">
+                <portlet:renderURL var="editLayoutURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
+                    <portlet:param name="struts_action" value="/dockbar/edit_layout_panel" />
+                    <portlet:param name="closeRedirect" value="<%= PortalUtil.getLayoutURL(layout, themeDisplay) %>" />
+                    <portlet:param name="selPlid" value="<%= String.valueOf(plid) %>" />
+                </portlet:renderURL>
 
-            <aui:nav-item anchorId="previewPanel" cssClass="page-preview-controls" data-panelURL="<%= previewContentURL %>" href="javascript:;" iconCssClass="icon-desktop" label="preview" />
-        </c:if>
+                <aui:nav-item anchorId="editLayoutPanel" cssClass="page-edit-controls" data-panelURL="<%= editLayoutURL %>" href="javascript:;" iconCssClass="icon-edit" label="edit" />
+            </c:if>
 
-        <c:if test="<%= !group.isControlPanel() && userSetupComplete && (themeDisplay.isShowLayoutTemplatesIcon() || themeDisplay.isShowPageSettingsIcon()) %>">
-            <portlet:renderURL var="editLayoutURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
-                <portlet:param name="struts_action" value="/dockbar/edit_layout_panel" />
-                <portlet:param name="closeRedirect" value="<%= PortalUtil.getLayoutURL(layout, themeDisplay) %>" />
-                <portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
-                <portlet:param name="selPlid" value="<%= String.valueOf(plid) %>" />
-            </portlet:renderURL>
-
-            <aui:nav-item anchorId="editLayoutPanel" cssClass="page-edit-controls" data-panelURL="<%= editLayoutURL %>" href="javascript:;" iconCssClass="icon-edit" label="edit" />
-        </c:if>
-
-        <%
-            // 2014-06-19: This line is the only modified line as of this date.
-            boolean userHasAnySiteRole = UserGroupRoleLocalServiceUtil.getUserGroupRoles(permissionChecker.getUserId(), scopeGroupId) != null && UserGroupRoleLocalServiceUtil.getUserGroupRoles(permissionChecker.getUserId(), scopeGroupId).size() > 0;
-        %>
-        <c:if test="<%= userHasAnySiteRole || !group.isControlPanel() && userSetupComplete && (!group.hasStagingGroup() || group.isStagingGroup()) && (hasLayoutUpdatePermission || (layoutTypePortlet.isCustomizable() && layoutTypePortlet.isCustomizedView() && hasLayoutCustomizePermission) || PortletPermissionUtil.hasConfigurationPermission(permissionChecker, themeDisplay.getSiteGroupId(), layout, ActionKeys.CONFIGURATION)) %>">
-            <aui:nav-item anchorCssClass="toggle-controls-link" cssClass="toggle-controls" iconCssClass='<%= "controls-state-icon " + (toggleControlsState.equals("visible") ? "icon-eye-open" : "icon-eye-close") %>' id="toggleControls" label="edit-controls" />
-        </c:if>
-    </aui:nav>
+            <c:if test="<%= showToggleControls %>">
+                <aui:nav-item anchorCssClass="toggle-controls-link" cssClass="toggle-controls" iconCssClass='<%= "controls-state-icon " + (toggleControlsState.equals("visible") ? "icon-eye-open" : "icon-eye-close") %>' id="toggleControls" label="edit-controls" />
+            </c:if>
+        </aui:nav>
+    </c:if>
 
     <%@ include file="/html/portlet/dockbar/view_user_panel.jspf" %>
 </aui:nav-bar>
